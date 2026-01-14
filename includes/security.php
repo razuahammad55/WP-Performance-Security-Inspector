@@ -1,29 +1,47 @@
 <?php
 
+if (!defined('ABSPATH')) exit;
+
 function wpsi_security_report() {
+
     $issues = [];
 
-    if (get_option('users_can_register')) {
-        $issues[] = "User registration is enabled.";
+    // REST users endpoint exposure
+    $rest_url = home_url('/wp-json/wp/v2/users');
+    $response = wp_remote_get($rest_url, ['timeout' => 5]);
+
+    if (!is_wp_error($response)) {
+        $body = wp_remote_retrieve_body($response);
+        if (strpos($body, '"id"') !== false) {
+            $issues[] = "REST API exposes user data (/wp-json/wp/v2/users).";
+        }
     }
 
+    // XML-RPC
     if (file_exists(ABSPATH . 'xmlrpc.php')) {
-        $issues[] = "XML-RPC is enabled.";
+        $issues[] = "XML-RPC is enabled (common attack vector).";
     }
 
-    if (strpos(file_get_contents(home_url('/wp-json/wp/v2/users')), 'id') !== false) {
-        $issues[] = "REST API exposes user data.";
+    // User registration
+    if (get_option('users_can_register')) {
+        $issues[] = "Anyone can register accounts.";
     }
 
+    // WP version exposure
+    if (has_action('wp_head', 'wp_generator')) {
+        $issues[] = "WordPress version is exposed.";
+    }
+
+    // Output
     if (empty($issues)) {
-        echo "<p style='color:green;'>✔ No critical security issues detected.</p>";
+        echo "<p class='wpsi-ok'>✔ No critical security issues found.</p>";
     } else {
-        echo "<ul style='color:#b00;'>";
+        echo "<ul class='wpsi-list'>";
         foreach ($issues as $issue) {
-            echo "<li>⚠ $issue</li>";
+            echo "<li>⚠ {$issue}</li>";
         }
         echo "</ul>";
     }
 
-    echo "<p><strong>Tip:</strong> Hide wp-admin & secure REST endpoints.</p>";
+    echo "<p class='wpsi-tip'><strong>Tip:</strong> Disable XML-RPC, hide REST users, secure wp-admin.</p>";
 }
