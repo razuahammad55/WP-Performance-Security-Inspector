@@ -1,0 +1,34 @@
+.wpsi-wrap {
+    max-width: 900px;
+}
+
+.wpsi-card {
+    background: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.wpsi-list li {
+    margin-bottom: 8px;
+}
+
+.wpsi-ok {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.wpsi-tip {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+.wpsi-badge.good {
+    color: #2e7d32;
+}
+
+.wpsi-badge.bad {
+    color: #c62828;
+}
